@@ -3,7 +3,7 @@ html
   head
     meta(charset='utf-8')
     meta(name='viewport', content='width=device-width, initial-scale=1, maximum-scale=1')
-    title Graft - Full-Stack Microservices
+    title Full-Stack Through Microservices
 
     link(rel='stylesheet', type='text/css', href='build/build.css')
 
@@ -12,66 +12,132 @@ html
     article
 
       section
-        h1 Graft - Full-Stack Microservices
+        h1 Full-Stack Through Microservices
+        h3 <a href="http://twitter.com/matteocollina">@matteocollina</a>
+
+      section(data-camera="fullscreen")
+        p Camera not working
 
       section
-        h2 Keyboard Interaction
-        h3 Powered by <a href="https://github.com/markdalgleish/bespoke-keys">bespoke-keys</a>
+        h2.bullet Where do we come from?
+        h3.bullet a brief history of distributing services
+
+      section(data-bespoke-state='letters')
+        .letter-box
+          .bullet
+
+          .row
+            span.red R
+            span.bullet emote
+
+          .row
+            span.red P
+            span.bullet rocedure
+
+          .row
+            span.red C
+            span.bullet all
 
       section
-        h2 Touch Interaction
-        h3 Powered by <a href="https://github.com/markdalgleish/bespoke-touch">bespoke-touch</a>
+        img(src='images/sun.png')
+
+        br
+
+        h2 SUN's RPC, basis of NFS
 
       section
-        h2 Responsive Slides
-        h3 Powered by <a href="https://github.com/markdalgleish/bespoke-scale">bespoke-scale</a>
+          img(src='images/java.png', style='height: 100%')
+
+          br
+
+          h2 RMI
 
       section
-        h2 Bullet List
-        h3.bullet Powered by <a href="https://github.com/markdalgleish/bespoke-bullets">bespoke-bullets</a>
-        ul
-          li Bullet 1
-          li Bullet 2
-          li Bullet 3
+        img(src='images/dnode.png' style="width: 100%")
 
       section
-        h2 Syntax Highlighting
-        h3 Powered by <a href="http://twitter.com/LeaVerou">Lea Verou</a>'s <a href="https://github.com/LeaVerou/prism">Prism</a>
+        h2 Dnode
+
         pre
           code.language-javascript.
-            bespoke.from('article', [
-              classes(),
-              keys(),
-              touch(),
-              bullets('li, .bullet')
-            ]);
+            var dnode = require('dnode');
+            var server = dnode({
+                replace: function (s, cb) {
+                    cb(s.replace(/[aeiou]{2,}/, 'oo').toUpperCase())
+                }
+            });
+            server.listen(5004);
 
-      section(data-bespoke-hash='named-route')
-        h2 Named Route
-        h3 Powered by <a href="https://github.com/markdalgleish/bespoke-hash">bespoke-hash</a>
-        p Look up! This route has been named with a <em>'data-bespoke-hash'</em> attribute.
+      section
+        h2 Takeaways
+        ul
+          li request/response pattern
+          li built on streams
+          li JSON message format
+          li works from the browser, too!
+          li data must be ready before calling the RPC
+          li no live feed, 'no realtime'
 
-      section(data-bespoke-state='emphatic')
-        h2 Emphatic Slide!
-        h3 Powered by <a href="https://github.com/markdalgleish/bespoke-state">bespoke-state</a>
+      section(data-bespoke-state='letters')
+        .letter-box(style="font-size: 42")
+          .row
+            .red R
+          .row
+            .red E
+          .row
+            .red S
+          .row
+            .red T
+
+      section
+        h2 Takeaways
+        ul
+          li Most of the time not used under Roy's guidelines
+          li A much nicer version of RPC?
+          li No live feed (Server-Sent Events?)
+          li Is WebSocket REST?
 
       section
         code(data-bespoke-autorun).language-javascript.
           alert(2 + 2)
 
-      section(data-camera="fullscreen")
+      section
+        h2 Backpressure
+
+        img(src='images/backpressure.png')
+
+        .copyright
+          | Image courtesy of&nbsp;
+          a(href="http://twitter.com/jlord")
+            | @jlord
+          | &nbsp;and&nbsp;
+          a(href="http://twitter.com/maxogden")
+            | @maxogden
 
       section
-        h2.bullet Just the beginning...
+        h2 This room temperature
+        // TODO copy from mqtt-and node
+
+      section(data-camera="fullscreen")
+        p Camera not working
+
+      section
+        h2 Graft and jsChan Team
+        ul.bullet
+          li Adrian Roussow
+          li Peter Elger
+          li Matteo Collina
+
+      section
+        .container
+          img(src='images/me.png', style='width: 100%')
+
+      section
+        h1 Thanks!
         br
-        ul
-          li Edit <a href="http://jade-lang.com/">Jade</a> markup in <em>'src/index.jade'</em>
-          li Edit <a href="http://learnboost.github.io/stylus/">Stylus</a> styles in <em>'src/styles/main.styl'</em>
-          li Edit JavaScript in <em>'src/scripts/main.js'</em>
-        br
-        ul
-          li
-            strong Enjoy! :)
-            a(href='http://twitter.com/markdalgleish')  -@markdalgleish
+        h3 <a href="mailto:hello@matteocollina.com">hello@matteocollina.com</a>
+        h3 <a href="http://twitter.com/matteocollina">@matteocollina</a> on Twitter
+        h3 <a href="http://github.com/mcollina">@mcollina</a> on Github
+        h3 <a href="http://www.matteocollina.com">www.matteocollina.com</a>
 
     script(src='build/build.js')
