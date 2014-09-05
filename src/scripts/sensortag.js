@@ -16,7 +16,6 @@ function buildUpdater(topic, key) {
   })
 
   function update(msg) {
-    console.log(msg)
     var value = msg.value
     var elem = document.querySelector(key)
     if (!elem) {

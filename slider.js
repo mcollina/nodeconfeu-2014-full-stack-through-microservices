@@ -13,28 +13,38 @@ var debug = require('debug')('blue')
   , devnull = require('dev-null')
   , broker = require('mqstreams')(require('mqemitter')())
   , lastTemp = -1
+  , lastHumidity = -1
 
 debug('searching for a sensor tag')
 
 ws
   .server({ port: 8001 })
-  .pipe(through.obj(function(req, enc, done) {
-    req.session.on('error', function(err) {})
-    this.push(req)
+  .pipe(through.obj(function(msg, enc, done) {
+    msg._session.on('error', function(err) {})
+    this.push(msg)
     done()
   }))
   .pipe(graft)
-  .where({ cmd: 'subscribe' }, through.obj(function(req, enc, done) {
-    debug('subscribed', req.msg.topic)
-    var stream = broker.readable(req.msg.topic)
-    req.session.on('error', function(err) {
+  .where({ cmd: 'subscribe' }, through.obj(function(msg, enc, done) {
+    debug('subscribed', msg.topic)
+
+    var stream = broker.readable(msg.topic)
+
+    if (msg.topic === 'sensortag/humidity') {
+      msg.messages.write({ value: lastHumidity })
+    } else if (msg.topic === 'sensortag/temperature') {
+      msg.messages.write({ value: lastTemp })
+    }
+
+    msg._session.on('error', function(err) {
       stream.unpipe()
     })
-    stream.pipe(req.msg.messages)
+
+    stream.pipe(msg.messages)
     done()
   }))
-  .where({ cmd: 'getLastTemp' }, through.obj(function(req, enc, done) {
-    req.msg.ret.end(lastTemp)
+  .where({ cmd: 'getLastTemp' }, through.obj(function(msg, enc, done) {
+    msg.ret.end(lastTemp)
     done()
   }))
   .pipe(devnull({ objectMode: true }))
@@ -79,6 +89,7 @@ SensorTag.discover(function(sensorTag) {
 
   sensorTag.on('humidityChange', function(temperature, humidity) {
     lastTemp = temperature
+    lastHumidity = humidity
     broker.emit({ topic: 'sensortag/temperature', value: temperature })
     broker.emit({ topic: 'sensortag/humidity', value: humidity })
   })
