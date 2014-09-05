@@ -11,9 +11,12 @@ html
 
     article
 
-      section
+      section(data-bespoke-state='main-slide')
         h1 Full-Stack Through Microservices
         h3 <a href="http://twitter.com/matteocollina">@matteocollina</a>
+
+      section(data-bespoke-state='main-slide')
+        h2 .pipe(service).pipe(another)
 
       section(data-camera="fullscreen")
         p Camera not working
@@ -214,6 +217,18 @@ html
           | &nbsp;and&nbsp;
           a(href="http://twitter.com/maxogden")
             | @maxogden
+
+      section
+        h2 Full-Stack Through Microservices
+
+        pre
+          code.language-javascript.
+            var graft = require('graft')()
+            graft.pipe(through.obj(function(req, enc, done) {
+              // your microservice goes here
+              this.push(req) // eventually
+              done() // always remember!
+            }))
 
       section
         h2 A simple adder service
