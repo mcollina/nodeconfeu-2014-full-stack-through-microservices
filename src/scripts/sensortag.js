@@ -2,8 +2,6 @@
 var graft = require('graft')()
   , ws = require('graft/ws');
 
-graft.pipe(ws.client({ port: 8001 }))
-
 window.graft = graft;
 
 function buildUpdater(topic, key) {
@@ -47,12 +45,16 @@ function buildExecutor(deck) {
   ret.on('data', execute)
 }
 
+var client = graft.pipe(ws.client({ port: 8001 }))
 
 function build(deck) {
-  buildUpdater('sensortag/humidity', '#humidity')
-  buildUpdater('sensortag/ir/object', '#ir-object')
-  buildUpdater('sensortag/ir/ambient', '#ir-ambient')
-  buildExecutor(deck)
+  client.on('ready', function() {
+    console.log('connected!!');
+    buildUpdater('sensortag/humidity', '#humidity')
+    buildUpdater('sensortag/ir/object', '#ir-object')
+    buildUpdater('sensortag/ir/ambient', '#ir-ambient')
+    buildExecutor(deck)
+  });
 };
 
 module.exports = function() {

@@ -115,7 +115,7 @@ html
         ul.bullet
           li Built in Go
           li
-            em future
+            em future&nbsp;
             | basis of Docker
           li SPDY all the things!
           li Like Go Channels over the Network
@@ -158,11 +158,159 @@ html
             sender.write(cmd)
 
       section
-        // add here a jsChan server
+        pre
+          code.language-javascript.
+            var server = jschan.spdyServer();
+            server.listen(9323);
+            function handleReq(req) {
+              // see next slide
+            }
+            function handleChannel(channel) {
+              channel.on('data', handleReq);
+            }
+            function handleSession(session) {
+              session.on('channel', handleChannel);
+            }
+            server.on('session', handleSession);
 
-      sectio
+      section
+        pre
+          code.language-javascript.
+            function handleReq(req) {
+              var child = childProcess.spawn(
+                req.Cmd,
+                req.Args,
+                { stdio: ['pipe', 'pipe', 'pipe'] }
+              );
+              req.Stdin.pipe(child.stdin);
+              child.stdout.pipe(req.Stdout);
+              child.stderr.pipe(req.Stderr);
+              child.on('exit', function(status) {
+                req.StatusChan.write({ Status: status });
+              });
+            }
+
+      section
         h2 What can we send on a Channel?
-        // Todo fill
+        ul.bullet
+          li
+            em Anything&nbsp;
+            | that you can serialize as JSON
+          li 
+            | Node.js binary streams (Readable, Writable, Duplex)
+          li
+            | Other&nbsp;
+            em Channels
+
+      section
+        h2 Session supports Backpressure
+
+        img(src='images/backpressure.png')
+
+        .copyright
+          | Image courtesy of&nbsp;
+          a(href="http://twitter.com/jlord")
+            | @jlord
+          | &nbsp;and&nbsp;
+          a(href="http://twitter.com/maxogden")
+            | @maxogden
+
+      section
+        img(src='images/graft.svg')
+        br
+        .bullet
+        h3.bullet
+          | Full-Stack Through MicroServices
+
+      section
+        h2 Full-Stack Through Microservices
+
+        pre
+          code.language-javascript.
+            var graft = require('graft')()
+            graft.pipe(through.obj(function(req, enc, done) {
+              // your microservice goes here
+              this.push(req) // eventually
+              done() // always remember!
+            }))
+
+      section
+        h2 A simple adder service
+
+        pre
+          code.language-javascript.
+            var graft = require('graft');
+            var through = require('through2');
+            module.exports = function build() {
+              return graft()
+                .pipe(through.obj(function(msg, enc, cb) {
+                  var result = msg.a + msg.b;
+                  msg.returnChannel.end(result);
+                  cb();
+                }));
+            }
+
+      section
+        h2 Calling it locally
+
+        pre
+          code.language-javascript.
+            var graft = require('graft')();
+            var adder = require('./adder');
+            var ret   = graft.ReadChannel();
+            graft.pipe(adder())
+            graft.write({
+              a: 2,
+              b: 2,
+              returnChannel: ret
+            });
+            ret.on('data', console.log);
+
+      section
+        h2 Exposing it
+        h3 (at the end of the adder.js file)
+
+        pre
+          code.language-javascript.
+            if (require.main === module) {
+              require('graft/spdy')
+                .server({ port: 3001 })
+                .on('ready', function() {
+                  console.log('Added listening on port', 3001);
+                })
+                .pipe(module.exports());
+            }
+
+      section
+        h2 Calling it remotely
+
+        pre
+          code.language-javascript.
+            var graft = require('graft')();
+            var spdy  = require('graft/spdy');
+            var ret   = graft.ReadChannel();
+            graft.pipe(ws.client({ port: 3001 }));
+            graft.write({
+              a: 2,
+              b: 2,
+              returnChannel: ret
+            });
+            ret.on('data', console.log);
+
+      section
+        h2 Orchestration
+
+        pre
+          code.language-javascript.
+            var graft = require('graft')();
+            var spdy  = require('graft/spdy');
+            var ws    = require('graft/ws');
+
+            ws
+              .server({ port: 3000 })
+              .pipe(graft())
+              .where({ cmd: 'add' }, spdy.client({ port: 3001 }))
+              // pipe or where() to more services
 
       section
         h1 Demo App!
@@ -204,40 +352,6 @@ html
             ret.on('data', function(data) {
               alert(data)
             })
-
-      section
-        h2 Channels support Backpressure
-
-        img(src='images/backpressure.png')
-
-        .copyright
-          | Image courtesy of&nbsp;
-          a(href="http://twitter.com/jlord")
-            | @jlord
-          | &nbsp;and&nbsp;
-          a(href="http://twitter.com/maxogden")
-            | @maxogden
-
-      section
-        h2 Full-Stack Through Microservices
-
-        pre
-          code.language-javascript.
-            var graft = require('graft')()
-            graft.pipe(through.obj(function(req, enc, done) {
-              // your microservice goes here
-              this.push(req) // eventually
-              done() // always remember!
-            }))
-
-      section
-        h2 A simple adder service
-
-      section
-        h2 Calling it locally
-
-      section
-        h2 Remote Orchestration
 
       section
         h2 Todo List

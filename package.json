@@ -6,7 +6,7 @@
     "bespoke-run": "^1.0.1",
     "debug": "^2.0.0",
     "dev-null": "^0.1.1",
-    "graft": "0.0.7",
+    "graft": "0.0.9",
     "mac-key-press": "^0.1.0",
     "mqemitter": "^0.2.0",
     "mqstreams": "^0.1.0",
