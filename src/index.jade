@@ -98,11 +98,112 @@ html
           li Is WebSocket REST?
 
       section
-        code(data-bespoke-autorun).language-javascript.
-          alert(2 + 2)
+        img(src='images/docker.png', style='width: 100%')
 
       section
-        h2 Backpressure
+        quote
+          i.fa.fa-2x.fa-quote-left
+          .text
+            | instead of pretending everything is a local function even over the network (which turned out to be a bad idea), what if we did it the other way around? Pretend your components are communicating over a network even when they aren't.
+          a(href='https://twitter.com/solomonstre') Solomon Hykes - @solomonstre
+
+      section
+        h2 LibChan
+        ul.bullet
+          li Built in Go
+          li
+            em future
+            | basis of Docker
+          li SPDY all the things!
+          li Like Go Channels over the Network
+          li MsgPack all the things!
+          li unidirectional
+          li automatic binary stream support
+
+      section
+        h2 jsChan
+        ul.bullet
+          li node.js and browser* support
+          li a Channel is a Transform
+          li you manipulate channels via through
+          li each MicroService is just a through away
+          li SPDY, or Websocket
+
+      section
+        h2 Unidirectionality
+
+        ul.bullet
+          li means that you send a request
+          li and you cannot have a response
+          li ... really??
+          li you can send a return Channel
+          li or 42.
+
+      section
+        pre
+          code.language-javascript.
+            var session = jschan.spdyClientSession({ port: 9323 })
+            var sender = session.WriteChannel()
+            var cmd = {
+              Args: process.argv.slice(3),
+              Cmd: process.argv[2],
+              StatusChan: sender.ReadChannel(),
+              Stderr: process.stderr,
+              Stdout: process.stdout,
+              Stdin: process.stdin
+            }
+            sender.write(cmd)
+
+      section
+        // add here a jsChan server
+
+      sectio
+        h2 What can we send on a Channel?
+        // Todo fill
+
+      section
+        h1 Demo App!
+        h3 I'm into the Internet of Things
+
+      section
+        h2 Temperature Sensor
+        p
+          | Object: &nbsp;
+          span#ir-object.sensor-data
+          | &nbsp; °C
+        p
+          | Ambient: &nbsp;
+          span#ir-ambient.sensor-data
+          | &nbsp; °C
+
+      section
+        h2 A humidity sensor!
+        p
+          i.fa.fa-umbrella.fa-5x
+          | &nbsp;
+          span#humidity.sensor-data
+          | &nbsp; %RH
+
+      section(data-camera="fullscreen")
+        p Camera not working
+
+      section
+        h2 Request/Reponse
+        pre
+          code(data-bespoke-autorun).language-javascript.
+            var ret = graft.ReadChannel()
+
+            graft.write({
+              cmd: 'getLastTemp',
+              ret: ret
+            })
+
+            ret.on('data', function(data) {
+              alert(data)
+            })
+
+      section
+        h2 Channels support Backpressure
 
         img(src='images/backpressure.png')
 
@@ -115,11 +216,22 @@ html
             | @maxogden
 
       section
-        h2 This room temperature
-        // TODO copy from mqtt-and node
+        h2 A simple adder service
 
-      section(data-camera="fullscreen")
-        p Camera not working
+      section
+        h2 Calling it locally
+
+      section
+        h2 Remote Orchestration
+
+      section
+        h2 Todo List
+        ul.bullet
+          li lots of testing
+          li service discovery?
+          li more transport
+          li examples for authentication
+          li HTTP/REST support
 
       section
         h2 Graft and jsChan Team

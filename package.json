@@ -3,7 +3,15 @@
   "version": "0.0.0",
   "dependencies": {
     "bespoke-camera": "^1.0.0",
-    "bespoke-run": "^1.0.1"
+    "bespoke-run": "^1.0.1",
+    "debug": "^2.0.0",
+    "dev-null": "^0.1.1",
+    "graft": "0.0.6",
+    "mac-key-press": "^0.1.0",
+    "mqemitter": "^0.2.0",
+    "mqstreams": "^0.1.0",
+    "sensortag": "^0.1.8",
+    "through2": "^0.6.1"
   },
   "devDependencies": {
     "bespoke": "^1.0.0",

@@ -9,6 +9,7 @@ var bespoke = require('bespoke'),
   run = require('bespoke-run'),
   camera = require('bespoke-camera'),
   progress = require('bespoke-progress'),
+  sensortag = require('./sensortag'),
   state = require('bespoke-state');
 
 // Bespoke.js
@@ -22,7 +23,8 @@ bespoke.from('article', [
   scale(),
   hash(),
   progress(),
-  state()
+  state(),
+  sensortag()
 ]);
 
 // Prism syntax highlighting

@@ -57,6 +57,12 @@ gulp.task('images', ['clean:images'], function() {
     .pipe(connect.reload());
 });
 
+gulp.task('font-awesome', ['clean:fonts'], function() {
+  return gulp.src('bower_components/font-awesome/fonts/*')
+    .pipe(gulp.dest('dist/fonts'))
+    .pipe(connect.reload());
+});
+
 gulp.task('clean', function() {
   return gulp.src('dist')
     .pipe(rimraf());
@@ -79,6 +85,11 @@ gulp.task('clean:css', function() {
 
 gulp.task('clean:images', function() {
   return gulp.src('dist/images')
+    .pipe(rimraf());
+});
+
+gulp.task('clean:fonts', function() {
+  return gulp.src('dist/fonts')
     .pipe(rimraf());
 });
 
@@ -105,6 +116,6 @@ gulp.task('deploy', ['build'], function(done) {
   ghpages.publish(path.join(__dirname, 'dist'), { logger: gutil.log }, done);
 });
 
-gulp.task('build', ['js', 'html', 'css', 'images']);
+gulp.task('build', ['js', 'html', 'css', 'images', 'font-awesome']);
 gulp.task('serve', ['connect', 'watch']);
 gulp.task('default', ['build']);
