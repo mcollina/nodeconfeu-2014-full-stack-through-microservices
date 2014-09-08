@@ -203,7 +203,8 @@ html
             em Channels
 
       section
-        h2 Session supports Backpressure
+        h2 Channels support Backpressure
+        h3 on SPDY
 
         img(src='images/backpressure.png')
 
@@ -280,6 +281,19 @@ html
                 })
                 .pipe(module.exports());
             }
+
+      section
+        h2 Accessing the Channel and Session
+
+        pre
+          code.language-javascript.
+            graft.pipe(through.obj(function(req, enc, done) {
+              console.log(req._channel);
+              console.log(req._session);
+
+              this.push(req) // eventually
+              done() // always remember!
+            }))
 
       section
         h2 Calling it remotely
