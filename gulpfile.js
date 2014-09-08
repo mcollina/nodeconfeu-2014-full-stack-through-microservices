@@ -63,6 +63,12 @@ gulp.task('font-awesome', ['clean:fonts'], function() {
     .pipe(connect.reload());
 });
 
+gulp.task('fira', function() {
+  return gulp.src('bower_components/fira/*')
+    .pipe(gulp.dest('dist/build/'))
+    .pipe(connect.reload());
+});
+
 gulp.task('clean', function() {
   return gulp.src('dist')
     .pipe(rimraf());
@@ -116,6 +122,6 @@ gulp.task('deploy', ['build'], function(done) {
   ghpages.publish(path.join(__dirname, 'dist'), { logger: gutil.log }, done);
 });
 
-gulp.task('build', ['js', 'html', 'css', 'images', 'font-awesome']);
+gulp.task('build', ['js', 'html', 'css', 'images', 'font-awesome', 'fira']);
 gulp.task('serve', ['connect', 'watch']);
 gulp.task('default', ['build']);
