@@ -101,7 +101,7 @@ html
           li Is WebSocket REST?
 
       section
-        img(src='images/docker.png', style='width: 100%')
+        img(src='images/docker.png', style='height: 100%')
 
       section
         quote
@@ -121,16 +121,6 @@ html
           li Like Go Channels over the Network
           li MsgPack all the things!
           li unidirectional
-          li automatic binary stream support
-
-      section
-        h2 jsChan
-        ul.bullet
-          li node.js and browser* support
-          li a Channel is a Transform
-          li you manipulate channels via through
-          li each MicroService is just a through away
-          li SPDY, or Websocket
 
       section
         h2 Unidirectionality
@@ -141,6 +131,16 @@ html
           li ... really??
           li you can send a return Channel
           li or 42.
+          li automatic binary stream support
+
+      section
+        h2 jsChan
+        ul.bullet
+          li node.js and browser* support
+          li a Channel is a Transform
+          li you manipulate channels via through
+          li each MicroService is just a through away
+          li SPDY, or Websocket
 
       section
         pre
@@ -203,8 +203,7 @@ html
             em Channels
 
       section
-        h2 Channels support Backpressure
-        h3 on SPDY
+        h2 jsChan supports Backpressure
 
         img(src='images/backpressure.png')
 
@@ -228,7 +227,8 @@ html
 
         pre
           code.language-javascript.
-            var graft = require('graft')()
+            var graft   = require('graft')()
+            var through = require('through2')
             graft.pipe(through.obj(function(req, enc, done) {
               // your microservice goes here
               this.push(req) // eventually
@@ -240,15 +240,13 @@ html
 
         pre
           code.language-javascript.
-            var graft = require('graft');
             var through = require('through2');
             module.exports = function build() {
-              return graft()
-                .pipe(through.obj(function(msg, enc, cb) {
-                  var result = msg.a + msg.b;
-                  msg.returnChannel.end(result);
-                  cb();
-                }));
+              return through.obj(function(msg, enc, cb) {
+                var result = msg.a + msg.b;
+                msg.returnChannel.end(result);
+                cb();
+              }));
             }
 
       section
@@ -303,7 +301,7 @@ html
             var graft = require('graft')();
             var spdy  = require('graft/spdy');
             var ret   = graft.ReadChannel();
-            graft.pipe(ws.client({ port: 3001 }));
+            graft.pipe(spdy.client({ port: 3001 }));
             graft.write({
               a: 2,
               b: 2,
@@ -322,13 +320,16 @@ html
 
             ws
               .server({ port: 3000 })
-              .pipe(graft())
+              .pipe(graft)
               .where({ cmd: 'add' }, spdy.client({ port: 3001 }))
               // pipe or where() to more services
 
       section
         h1 Demo App!
         h3 I'm into the Internet of Things
+
+      section(data-camera="fullscreen")
+        p Camera not working
 
       section
         h2 Temperature Sensor
@@ -348,9 +349,6 @@ html
           | &nbsp;
           span#humidity.sensor-data
           | &nbsp; %RH
-
-      section(data-camera="fullscreen")
-        p Camera not working
 
       section
         h2 Request/Reponse
@@ -372,9 +370,10 @@ html
         ul.bullet
           li lots of testing
           li service discovery?
-          li more transport
+          li more transports
           li examples for authentication
           li HTTP/REST support
+          li lots of feedbacks from you
 
       section
         h2 Graft and jsChan Team
