@@ -18,9 +18,6 @@ html
       section(data-bespoke-state='main-slide')
         h2 .pipe(service).pipe(another)
 
-      section(data-camera="fullscreen")
-        p Camera not working
-
       section
         h2.bullet Where do we come from?
         h3.bullet a brief history of distributing services
@@ -323,47 +320,6 @@ html
               .pipe(graft)
               .where({ cmd: 'add' }, spdy.client({ port: 3001 }))
               // pipe or where() to more services
-
-      section
-        h1 Demo App!
-        h3 I'm into the Internet of Things
-
-      section(data-camera="fullscreen")
-        p Camera not working
-
-      section
-        h2 Temperature Sensor
-        p
-          | Object: &nbsp;
-          span#ir-object.sensor-data
-          | &nbsp; °C
-        p
-          | Ambient: &nbsp;
-          span#ir-ambient.sensor-data
-          | &nbsp; °C
-
-      section
-        h2 A humidity sensor!
-        p
-          i.fa.fa-umbrella.fa-5x
-          | &nbsp;
-          span#humidity.sensor-data
-          | &nbsp; %RH
-
-      section
-        h2 Request/Reponse
-        pre
-          code(data-bespoke-autorun).language-javascript.
-            var ret = graft.ReadChannel()
-
-            graft.write({
-              cmd: 'getLastTemp',
-              ret: ret
-            })
-
-            ret.on('data', function(data) {
-              alert(data)
-            })
 
       section
         h2 Todo List

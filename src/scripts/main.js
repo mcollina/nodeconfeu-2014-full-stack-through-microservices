@@ -7,9 +7,7 @@ var bespoke = require('bespoke'),
   scale = require('bespoke-scale'),
   hash = require('bespoke-hash'),
   run = require('bespoke-run'),
-  camera = require('bespoke-camera'),
   progress = require('bespoke-progress'),
-  sensortag = require('./sensortag'),
   state = require('bespoke-state');
 
 // Bespoke.js
@@ -18,13 +16,11 @@ bespoke.from('article', [
   keys(),
   touch(),
   run(),
-  camera(),
   bullets('ul, li, .bullet'),
   scale(),
   hash(),
   progress(),
-  state(),
-  sensortag()
+  state()
 ]);
 
 // Prism syntax highlighting
