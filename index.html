@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Full-Stack Through Microservices</title>
+    <link rel="stylesheet" type="text/css" href="build/build.css">
+  </head>
+  <body>
+    <article>
+      <section data-bespoke-state="main-slide">
+        <h1>Full-Stack Through Microservices</h1>
+        <h3><a href="http://twitter.com/matteocollina">@matteocollina</a></h3>
+      </section>
+      <section data-bespoke-state="main-slide">
+        <h2>.pipe(service).pipe(another)</h2>
+      </section>
+      <section>
+        <h2 class="bullet">Where do we come from?</h2>
+        <h3 class="bullet">a brief history of distributing services</h3>
+      </section>
+      <section data-bespoke-state="letters">
+        <div class="letter-box">
+          <div class="bullet"></div>
+          <div class="row"><span class="red">R</span><span class="bullet">emote</span></div>
+          <div class="row"><span class="red">P</span><span class="bullet">rocedure</span></div>
+          <div class="row"><span class="red">C</span><span class="bullet">all</span></div>
+        </div>
+      </section>
+      <section><img src="images/sun.png"><br>
+        <h2>SUN's RPC, basis of NFS</h2>
+      </section>
+      <section><img src="images/java.png" style="height: 100%"><br>
+        <h2>RMI</h2>
+      </section>
+      <section><img src="images/dnode.png" style="width: 100%"></section>
+      <section>
+        <h2>Dnode</h2>
+        <pre><code class="language-javascript">var dnode = require('dnode');
+var server = dnode({
+    replace: function (s, cb) {
+        cb(s.replace(/[aeiou]{2,}/, 'oo').toUpperCase())
+    }
+});
+server.listen(5004);
+</code></pre>
+      </section>
+      <section>
+        <h2>Takeaways</h2>
+        <ul>
+          <li>request/response pattern</li>
+          <li>built on streams</li>
+          <li>JSON message format</li>
+          <li>works from the browser, too!</li>
+          <li>data must be ready before calling the RPC</li>
+          <li>no live feed, 'no realtime'</li>
+        </ul>
+      </section>
+      <section data-bespoke-state="letters">
+        <div style="font-size: 42" class="letter-box">
+          <div class="row">
+            <div class="red">R</div>
+          </div>
+          <div class="row">
+            <div class="red">E</div>
+          </div>
+          <div class="row">
+            <div class="red">S</div>
+          </div>
+          <div class="row">
+            <div class="red">T</div>
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2>Takeaways</h2>
+        <ul>
+          <li>Most of the time not used under Roy's guidelines</li>
+          <li>A much nicer version of RPC?</li>
+          <li>No live feed (Server-Sent Events?)</li>
+          <li>Is WebSocket REST?</li>
+        </ul>
+      </section>
+      <section><img src="images/docker.png" style="height: 100%"></section>
+      <section>
+        <quote><i class="fa fa-2x fa-quote-left"></i>
+          <div class="text">instead of pretending everything is a local function even over the network (which turned out to be a bad idea), what if we did it the other way around? Pretend your components are communicating over a network even when they aren't.</div><a href="https://twitter.com/solomonstre">Solomon Hykes - @solomonstre</a>
+        </quote>
+      </section>
+      <section>
+        <h2>LibChan</h2>
+        <ul class="bullet">
+          <li>Built in Go</li>
+          <li><em>future&nbsp;</em>basis of Docker</li>
+          <li>SPDY all the things!</li>
+          <li>Like Go Channels over the Network</li>
+          <li>MsgPack all the things!</li>
+          <li>unidirectional</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Unidirectionality</h2>
+        <ul class="bullet">
+          <li>means that you send a request</li>
+          <li>and you cannot have a response</li>
+          <li>... really??</li>
+          <li>you can send a return Channel</li>
+          <li>or 42.</li>
+          <li>automatic binary stream support</li>
+        </ul>
+      </section>
+      <section>
+        <h2>jsChan</h2>
+        <ul class="bullet">
+          <li>node.js and browser* support</li>
+          <li>a Channel is a Transform</li>
+          <li>you manipulate channels via through</li>
+          <li>each MicroService is just a through away</li>
+          <li>SPDY, or Websocket</li>
+        </ul>
+      </section>
+      <section>
+        <pre><code class="language-javascript">var session = jschan.spdyClientSession({ port: 9323 })
+var sender = session.WriteChannel()
+var cmd = {
+  Args: process.argv.slice(3),
+  Cmd: process.argv[2],
+  StatusChan: sender.ReadChannel(),
+  Stderr: process.stderr,
+  Stdout: process.stdout,
+  Stdin: process.stdin
+}
+sender.write(cmd)
+</code></pre>
+      </section>
+      <section>
+        <pre><code class="language-javascript">var server = jschan.spdyServer();
+server.listen(9323);
+function handleReq(req) {
+  // see next slide
+}
+function handleChannel(channel) {
+  channel.on('data', handleReq);
+}
+function handleSession(session) {
+  session.on('channel', handleChannel);
+}
+server.on('session', handleSession);
+</code></pre>
+      </section>
+      <section>
+        <pre><code class="language-javascript">function handleReq(req) {
+  var child = childProcess.spawn(
+    req.Cmd,
+    req.Args,
+    { stdio: ['pipe', 'pipe', 'pipe'] }
+  );
+  req.Stdin.pipe(child.stdin);
+  child.stdout.pipe(req.Stdout);
+  child.stderr.pipe(req.Stderr);
+  child.on('exit', function(status) {
+    req.StatusChan.write({ Status: status });
+  });
+}
+</code></pre>
+      </section>
+      <section>
+        <h2>What can we send on a Channel?</h2>
+        <ul class="bullet">
+          <li><em>Anything&nbsp;</em>that you can serialize as JSON</li>
+          <li>Node.js binary streams (Readable, Writable, Duplex)</li>
+          <li>Other&nbsp;<em>Channels</em></li>
+        </ul>
+      </section>
+      <section>
+        <h2>jsChan supports Backpressure</h2><img src="images/backpressure.png">
+        <div class="copyright">Image courtesy of&nbsp;<a href="http://twitter.com/jlord">@jlord</a>&nbsp;and&nbsp;<a href="http://twitter.com/maxogden">@maxogden</a></div>
+      </section>
+      <section><img src="images/graft.svg"><br>
+        <div class="bullet"></div>
+        <h3 class="bullet">Full-Stack Through MicroServices</h3>
+      </section>
+      <section>
+        <h2>Full-Stack Through Microservices</h2>
+        <pre><code class="language-javascript">var graft   = require('graft')()
+var through = require('through2')
+graft.pipe(through.obj(function(req, enc, done) {
+  // your microservice goes here
+  this.push(req) // eventually
+  done() // always remember!
+}))
+</code></pre>
+      </section>
+      <section>
+        <h2>A simple adder service</h2>
+        <pre><code class="language-javascript">var through = require('through2');
+module.exports = function build() {
+  return through.obj(function(msg, enc, cb) {
+    var result = msg.a + msg.b;
+    msg.returnChannel.end(result);
+    cb();
+  }));
+}
+</code></pre>
+      </section>
+      <section>
+        <h2>Calling it locally</h2>
+        <pre><code class="language-javascript">var graft = require('graft')();
+var adder = require('./adder');
+var ret   = graft.ReadChannel();
+graft.pipe(adder())
+graft.write({
+  a: 2,
+  b: 2,
+  returnChannel: ret
+});
+ret.on('data', console.log);
+</code></pre>
+      </section>
+      <section>
+        <h2>Exposing it</h2>
+        <h3>(at the end of the adder.js file)</h3>
+        <pre><code class="language-javascript">if (require.main === module) {
+  require('graft/spdy')
+    .server({ port: 3001 })
+    .on('ready', function() {
+      console.log('Added listening on port', 3001);
+    })
+    .pipe(module.exports());
+}
+</code></pre>
+      </section>
+      <section>
+        <h2>Accessing the Channel and Session</h2>
+        <pre><code class="language-javascript">graft.pipe(through.obj(function(req, enc, done) {
+  console.log(req._channel);
+  console.log(req._session);
+  
+  this.push(req) // eventually
+  done() // always remember!
+}))
+</code></pre>
+      </section>
+      <section>
+        <h2>Calling it remotely</h2>
+        <pre><code class="language-javascript">var graft = require('graft')();
+var spdy  = require('graft/spdy');
+var ret   = graft.ReadChannel();
+graft.pipe(spdy.client({ port: 3001 }));
+graft.write({
+  a: 2,
+  b: 2,
+  returnChannel: ret
+});
+ret.on('data', console.log);
+</code></pre>
+      </section>
+      <section>
+        <h2>Orchestration</h2>
+        <pre><code class="language-javascript">var graft = require('graft')();
+var spdy  = require('graft/spdy');
+var ws    = require('graft/ws');
+
+ws
+  .server({ port: 3000 })
+  .pipe(graft)
+  .where({ cmd: 'add' }, spdy.client({ port: 3001 }))
+  // pipe or where() to more services
+  </code></pre>
+      </section>
+      <section>
+        <h2>Todo List</h2>
+        <ul class="bullet">
+          <li>lots of testing</li>
+          <li>service discovery?</li>
+          <li>more transports</li>
+          <li>examples for authentication</li>
+          <li>HTTP/REST support</li>
+          <li>lots of feedbacks from you</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Graft and jsChan Team</h2>
+        <h3><a href="http://github.com/GraftJS/graft">http://github.com/GraftJS/graft</a></h3>
+        <ul class="bullet">
+          <li>Adrian Roussow</li>
+          <li>Peter Elger</li>
+          <li>Matteo Collina</li>
+        </ul>
+      </section>
+      <section>
+        <div class="container"><img src="images/me.png" style="width: 100%"></div>
+      </section>
+      <section>
+        <h1>Thanks!</h1><br>
+        <h3><a href="mailto:hello@matteocollina.com">hello@matteocollina.com</a></h3>
+        <h3><a href="http://twitter.com/matteocollina">@matteocollina</a> on Twitter</h3>
+        <h3><a href="http://github.com/mcollina">@mcollina</a> on Github</h3>
+        <h3><a href="http://www.matteocollina.com">www.matteocollina.com</a></h3>
+      </section>
+    </article>
+    <script src="build/build.js"></script>
+  </body>
+</html>
