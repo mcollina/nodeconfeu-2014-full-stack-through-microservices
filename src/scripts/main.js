@@ -6,7 +6,6 @@ var bespoke = require('bespoke'),
   bullets = require('bespoke-bullets'),
   scale = require('bespoke-scale'),
   hash = require('bespoke-hash'),
-  run = require('bespoke-run'),
   progress = require('bespoke-progress'),
   state = require('bespoke-state');
 
@@ -15,7 +14,6 @@ bespoke.from('article', [
   classes(),
   keys(),
   touch(),
-  run(),
   bullets('ul, li, .bullet'),
   scale(),
   hash(),
